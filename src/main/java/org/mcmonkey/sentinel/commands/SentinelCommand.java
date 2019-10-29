@@ -8,12 +8,18 @@ import net.citizensnpcs.api.command.Requirements;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.trait.Trait;
 import net.citizensnpcs.api.trait.trait.Owner;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.mcmonkey.sentinel.SentinelPlugin;
 import org.mcmonkey.sentinel.SentinelTrait;
-
+import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
+import com.palmergames.bukkit.towny.object.Nation;
+import com.palmergames.bukkit.towny.object.Resident;
+import com.palmergames.bukkit.towny.object.TownyUniverse;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -89,6 +95,24 @@ public class SentinelCommand {
         return false;
     }
 
+    private static boolean canCommandNpc(CommandSender sender, NPC npc) {
+    	if(sender instanceof Player) {
+    		if(npc.getTrait(Owner.class).isOwnedBy(sender)) return true;
+    		OfflinePlayer owner = Bukkit.getOfflinePlayer(npc.getTrait(Owner.class).getOwnerId());
+    		if(owner == null) return true;
+    		Nation ownerNation;
+    		Nation senderNation;
+    		try {
+    			Resident ownerboi = TownyUniverse.getDataSource().getResident(owner.getName());
+    			Resident senderboi = TownyUniverse.getDataSource().getResident(((Player) sender).getName());
+    			if(!ownerboi.hasTown() || !senderboi.hasTown()) return false;
+    			ownerNation = ownerboi.getTown().getNation();
+				senderNation = senderboi.getTown().getNation();
+			} catch (NotRegisteredException e) {return false;}
+    		return ownerNation == senderNation;
+    	} else return true;
+    }
+    
     /**
      * Handles a player or server command.
      */
@@ -127,7 +151,7 @@ public class SentinelCommand {
                 }
                 return true;
             }
-            if (!selected.getTrait(Owner.class).isOwnedBy(sender) && !sender.hasPermission("citizens.admin")) {
+            if (!canCommandNpc(sender, selected) && !sender.hasPermission("citizens.admin")) {
                 sender.sendMessage(prefixBad + "You do not own this NPC (and you are not an admin).");
                 return true;
             }
