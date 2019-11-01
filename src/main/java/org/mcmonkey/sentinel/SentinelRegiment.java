@@ -29,22 +29,12 @@ public class SentinelRegiment {
 	private Set<NPC> bois;
 	
 	private static Set<SentinelRegiment> units = new HashSet<SentinelRegiment>();
-	private static Map<Player, Set<SentinelRegiment>> commanders = new HashMap<Player, Set<SentinelRegiment>>();
-	private static Map<Player, InterUnitFormation> interUFormations = new HashMap<Player, InterUnitFormation>(); //if a player controls many units, how should they be arranged?
 	
 	private Player command;
 	private Formation formation; //how to arrange the NPCs inside the unit itself.
 	
 	public static Set<SentinelRegiment> getUnitSet() {
 		return new HashSet<SentinelRegiment>(units);
-	}
-	
-	public static Set<SentinelRegiment> getByCommander(Player cmd) {
-		return commanders.get(cmd);
-	}
-	
-	public static InterUnitFormation getInterUFormation(Player cmd) {
-		return interUFormations.get(cmd);
 	}
 	
 	public Set<NPC> getSoldiers() {
