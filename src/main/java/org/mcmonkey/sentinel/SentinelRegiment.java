@@ -145,3 +145,4 @@ public class SentinelRegiment {
 			soldiers[i].teleport(addVecLoc(rotateAndFix(locations[i], angle), target), TeleportCause.PLUGIN);
 		}
 	}
+}
